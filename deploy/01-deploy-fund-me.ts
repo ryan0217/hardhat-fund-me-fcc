@@ -4,7 +4,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { networkConfig } from "../helper-hardhat-config"
 import verify from "../utils/verify"
 
-export default async ({
+const deployFuneMe = async ({
   getNamedAccounts,
   deployments,
 }: HardhatRuntimeEnvironment) => {
@@ -25,7 +25,7 @@ export default async ({
     from: deployer,
     args,
     log: true,
-    waitConfirmations: 6,
+    waitConfirmations: 1,
   })
 
   if (
@@ -37,3 +37,7 @@ export default async ({
 
   log("-----------------------------------------------------------------")
 }
+
+deployFuneMe.tags = ["All", "FundMe"]
+
+export default deployFuneMe

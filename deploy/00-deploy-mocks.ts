@@ -6,7 +6,7 @@ import {
   INITIAL_ANSWER,
 } from "../helper-hardhat-config"
 
-export default async ({
+const deployMocks = async ({
   getNamedAccounts,
   deployments,
 }: HardhatRuntimeEnvironment) => {
@@ -26,3 +26,7 @@ export default async ({
     log("-----------------------------------------------------------------")
   }
 }
+
+deployMocks.tags = ["All", "Mocks"]
+
+export default deployMocks

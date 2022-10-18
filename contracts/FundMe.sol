@@ -28,9 +28,9 @@ contract FundMe {
     _;
   }
 
-  constructor(address priceFeeAddress) {
+  constructor(address priceFeedAddress) {
     i_owner = msg.sender;
-    priceFeed = AggregatorV3Interface(priceFeeAddress);
+    priceFeed = AggregatorV3Interface(priceFeedAddress);
   }
 
   receive() external payable {
