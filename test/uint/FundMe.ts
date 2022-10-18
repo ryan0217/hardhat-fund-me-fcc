@@ -22,7 +22,7 @@ describe("FundMe", async () => {
 
   describe("constructor", async () => {
     it("Sets the aggregator address correctly", async () => {
-      const response = await fundMe.priceFeed()
+      const response = await fundMe.i_priceFeed()
       expect(response).to.equal(mockV3Aggregator.address)
     })
   })
@@ -36,13 +36,13 @@ describe("FundMe", async () => {
 
     it("updated the amount funded data structure", async () => {
       await fundMe.fund({ value: ONE_ETHER })
-      const balance = await fundMe.addressToAmountFunded(deployer)
+      const balance = await fundMe.s_addressToAmountFunded(deployer)
       expect(balance).to.equal(ONE_ETHER)
     })
 
     it("Adds funder to array of funders", async () => {
       await fundMe.fund({ value: ONE_ETHER })
-      const funder = await fundMe.funders(0)
+      const funder = await fundMe.s_funders(0)
       expect(funder).to.equal(deployer)
     })
   })
@@ -109,10 +109,52 @@ describe("FundMe", async () => {
       )
 
       // Make sure that the funders are reset properly
-      await expect(fundMe.funders(0)).to.be.reverted
+      await expect(fundMe.s_funders(0)).to.be.reverted
 
       for (let i = 0; i < 6; i++) {
-        const curAccountFunded = await fundMe.addressToAmountFunded(
+        const curAccountFunded = await fundMe.s_addressToAmountFunded(
+          accounts[i].address
+        )
+        expect(curAccountFunded).to.equal(0)
+      }
+    })
+
+    it("allows us to cheaper withdraw with multiple funders", async () => {
+      const accounts = await ethers.getSigners()
+
+      for (let i = 1; i < 6; i++) {
+        const fundMeConnectedContract = await fundMe.connect(accounts[i])
+        await fundMeConnectedContract.fund({ value: ONE_ETHER })
+      }
+
+      // Arrange
+      const startingFundMeBalance = await ethers.provider.getBalance(
+        fundMe.address
+      )
+      const startingDeployerBalance = await ethers.provider.getBalance(deployer)
+
+      // Act
+      const transactionResponse = await fundMe.cheaperWithdraw()
+      const transactionReceipt = await transactionResponse.wait(1)
+      const { gasUsed, effectiveGasPrice } = transactionReceipt
+      const gasCost = gasUsed.mul(effectiveGasPrice)
+
+      const endingFundMeBalance = await ethers.provider.getBalance(
+        fundMe.address
+      )
+      const endingDeployerBalance = await ethers.provider.getBalance(deployer)
+
+      // Assert
+      expect(endingFundMeBalance).to.equal(0)
+      expect(startingFundMeBalance.add(startingDeployerBalance)).to.equal(
+        endingDeployerBalance.add(gasCost)
+      )
+
+      // Make sure that the funders are reset properly
+      await expect(fundMe.s_funders(0)).to.be.reverted
+
+      for (let i = 0; i < 6; i++) {
+        const curAccountFunded = await fundMe.s_addressToAmountFunded(
           accounts[i].address
         )
         expect(curAccountFunded).to.equal(0)
