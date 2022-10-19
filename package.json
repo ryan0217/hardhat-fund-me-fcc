@@ -9,7 +9,11 @@
     "start:localhost": "yarn hardhat deploy --network localhost",
     "start:goerli": "yarn hardhat deploy --network goerli",
     "compile": "yarn hardhat compile",
-    "verify": "yarn hardhat verify --network goerli"
+    "verify": "yarn hardhat verify --network goerli",
+    "test": "yarn hardhat test",
+    "test:staging": "yarn hardhat test --network goerli",
+    "format": "yarn prettier --write .",
+    "coverage": "yarn hardhat coverage"
   },
   "devDependencies": {
     "@chainlink/contracts": "^0.5.1",

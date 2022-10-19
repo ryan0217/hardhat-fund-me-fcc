@@ -22,7 +22,7 @@ developmentChains.includes(network.name)
         withdrawTxResponse.wait(1)
 
         const endingBalance = await ethers.provider.getBalance(fundMe.address)
-        console.log('endingBalance', endingBalance)
+        console.log("endingBalance", endingBalance)
 
         expect(endingBalance).to.equal(0)
       })
